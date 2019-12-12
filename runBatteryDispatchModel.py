@@ -5,9 +5,11 @@ from scipy.optimize import linprog, minimize
 from scipy.sparse import identity, tril, hstack, vstack, coo_matrix, find
 from cvxopt import matrix, solvers, spmatrix
 from scrips import makeLMPhist, setConstraintsA, plotDurationFrequency, plotDispatchCurve
+import cplex
 
 # import PJM data
-pjmdata = pd.read_csv('JCPL_DA_2017data.csv')
+#pjmdata = pd.read_csv('JCPL_DA_2017data.csv')
+pjmdata = pd.read_csv('PJMdata.csv')
 pjmdata.drop(['voltage', 'equipment', 'zone'], axis=1)
 
 makeLMPhist('PJM', pjmdata.total_lmp_da)
@@ -30,7 +32,8 @@ h = matrix(np.hstack((np.ones([t,])*nameCap, np.zeros([t, ]),
 	np.ones([2*t, ])*nameCap/5, np.zeros([2*t, ]))))
 
 c = matrix(c)
-ans3 = solvers.lp(c, G, h, solver = 'glpk')
+#ans3 = solvers.lp(c, G, h, solver = 'glpk')
+ans3 = solvers.lp(c, G, h, solver = 'cplex')
 outData = np.array(ans3['x'])
 val = ans3['primal objective']
 z = np.append(val, (outData))
